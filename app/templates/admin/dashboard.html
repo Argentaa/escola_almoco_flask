@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Painel Administrador{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold mb-1">Painel do Administrador</h2>
+                <p class="text-muted">Gerencie os almoços marcados pelos alunos</p>
+            </div>
+            <div class="d-none d-md-block">
+                <i class="fas fa-tachometer-alt fa-3x text-primary"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0 fw-bold text-primary">
+            <i class="fas fa-calendar-day me-2"></i>Selecione uma Data
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('admin.dashboard') }}" class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0">
+                        <i class="fas fa-calendar text-primary"></i>
+                    </span>
+                    {{ form.selected_date(class="form-control border-0 bg-light" + (" is-invalid" if form.selected_date.errors else "")) }}
+                </div>
+                {% if form.selected_date.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.selected_date.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-3">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if selected_date %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-primary">
+                <i class="fas fa-clipboard-list me-2"></i>Registros para: {{ selected_date.strftime('%d/%m/%Y') }}
+            </h5>
+            <span class="badge bg-primary rounded-pill fs-6">
+                <i class="fas fa-users me-1"></i>Total: {{ student_count }}
+            </span>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if registrations %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-center">#</th>
+                            <th scope="col">Nome do Aluno</th>
+                            <th scope="col">Usuário</th>
+                            <th scope="col">Registrado em</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reg in registrations %}
+                        <tr>
+                            <th scope="row" class="text-center">{{ loop.index }}</th>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle bg-primary text-white me-2">
+                                        {{ reg.student.first_name[0] }}{{ reg.student.last_name[0] }}
+                                    </div>
+                                    <span>{{ reg.student.get_full_name() }}</span>
+                                </div>
+                            </td>
+                            <td>{{ reg.student.username }}</td>
+                            <td>
+                                <i class="fas fa-clock text-muted me-1"></i>
+                                {{ reg.registered_at.strftime('%d/%m/%Y %H:%M:%S') }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info shadow-sm">
+                <div class="d-flex">
+                    <div class="me-3">
+                        <i class="fas fa-info-circle fa-2x"></i>
+                    </div>
+                    <div>
+                        <h5 class="alert-heading">Sem registros</h5>
+                        <p class="mb-0">Nenhum aluno marcou almoço para esta data.</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0 fw-bold text-primary">
+            <i class="fas fa-chart-pie me-2"></i>Estatísticas
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="p-3 bg-light rounded-3">
+                    <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                    <h5 class="fw-bold">{{ student_count }}</h5>
+                    <p class="text-muted mb-0">Alunos Registrados</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="p-3 bg-light rounded-3">
+                    <i class="fas fa-calendar-day fa-2x text-success mb-2"></i>
+                    <h5 class="fw-bold">{{ selected_date.strftime('%d/%m') }}</h5>
+                    <p class="text-muted mb-0">Data Selecionada</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 bg-light rounded-3">
+                    <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                    <h5 class="fw-bold">{{ now.strftime('%H:%M') }}</h5>
+                    <p class="text-muted mb-0">Hora Atual</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
